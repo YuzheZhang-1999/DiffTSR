@@ -50,7 +50,7 @@ python inference_DiffTSR.py
 
 
 ## 🔎 Overview of DiffTSR
-![DiffTSR](Repo_image/paper-DiffTSR-model.png)
+![DiffTSR](Repo_image/paper-DiffTSR-model.jpg)
 ### Abstract
 Recovering degraded low-resolution text images is challenging, especially for Chinese text images with complex strokes and severe degradation in real-world scenarios.
 Ensuring both text fidelity and style realness is crucial for high-quality text image super-resolution.
@@ -62,18 +62,20 @@ We further propose a Mixture of  Multi-modality module (MoM) to make these two d
 Extensive experiments on synthetic and real-world datasets demonstrate that our Diffusion-based Blind Text Image Super-Resolution (DiffTSR) can restore text images with more accurate text structures as well as more realistic appearances simultaneously.
 
 ### Visual performance comparison overview 
-![DiffTSR](Repo_image/paper-fig1.png)
+![DiffTSR](Repo_image/paper-fig1.jpg)
 Blind text image super-resolution results between different methods on synthetic and real-world text images. Our method can restore text images with high text fidelity and style realness under complex strokes, severe degradation, and various text styles.
 
 
 <details>
   <summary>📷 More Real-World Results</summary>
 
-  ## ![DiffTSR](Repo_image/paper-visual-comp-2.png)
-  ## ![DiffTSR](Repo_image/paper-visual-comp-3.png)
-  ## ![DiffTSR](Repo_image/paper-visual-comp-4.png)
-  ## ![DiffTSR](Repo_image/paper-visual-comp-5.png)
-
+  ## ![DiffTSR](Repo_image/paper-visual-comp-1.jpg)
+  ## ![DiffTSR](Repo_image/paper-visual-comp-2.jpg)
+  ## ![DiffTSR](Repo_image/paper-visual-comp-3.jpg)
+  ## ![DiffTSR](Repo_image/paper-visual-comp-4.jpg)
+  ## ![DiffTSR](Repo_image/paper-visual-comp-5.jpg)
+  ## ![DiffTSR](Repo_image/paper-visual-comp-6.jpg)
+  
 </details>
 
 
