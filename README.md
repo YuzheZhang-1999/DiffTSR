@@ -25,7 +25,11 @@ Diffusion-based Blind Text Image Super-Resolution (CVPR2024)
 - [x] Add inference code and checkpoints for blind text image SR.
 - [ ] Add training code and scripts.
 
-## 🛠️ Try It
+## 👁️ Gallery
+
+[<img src="Repo_image/ImgSli_1.jpg">](https://imgsli.com/MjY0MTk5) [<img src="Repo_image/ImgSli_2.jpg">](https://imgsli.com/MjY0MjA0)
+
+## 🛠️ Try
 ### Dependencies and Installation
 
 - Pytorch >= 1.7.0
@@ -40,16 +44,15 @@ conda env create -f environment.yaml
 conda activate DiffTSR
 ```
 ### Download the checkpoint
-```
 
-```
+Donwload from the [[BaiduDisk](https://pan.baidu.com/s/1hfaQzIp_V6H8AhAq5dfr8A)] to ./ckpt/ folder. Password: vk9n
+
 
 ### Inference
 ```
-# check the code for more detail
 python inference_DiffTSR.py
+# check the code for more detail
 ```
-
 
 ## 🔎 Overview of DiffTSR
 ![DiffTSR](Repo_image/paper-DiffTSR-model.jpg)
