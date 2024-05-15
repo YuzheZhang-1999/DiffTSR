@@ -1,6 +1,9 @@
 .vscode
 *.log
 *.lock
+*.ckpt
+*.pth
+*.pt
 .DS_Store
 */.DS_Store
 */*/.DS_Store
