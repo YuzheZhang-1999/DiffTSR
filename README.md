@@ -39,8 +39,10 @@ cd DiffTSR
 conda env create -f environment.yaml
 conda activate DiffTSR
 ```
-### Download the ceckpoint
+### Download the checkpoint
+```
 
+```
 
 ### Inference
 ```
@@ -75,7 +77,7 @@ Blind text image super-resolution results between different methods on synthetic
   ## ![DiffTSR](Repo_image/paper-visual-comp-4.jpg)
   ## ![DiffTSR](Repo_image/paper-visual-comp-5.jpg)
   ## ![DiffTSR](Repo_image/paper-visual-comp-6.jpg)
-  
+
 </details>
 
 
