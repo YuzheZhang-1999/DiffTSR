@@ -27,7 +27,7 @@ Diffusion-based Blind Text Image Super-Resolution (CVPR2024)
 
 ## 👁️ Gallery
 
-[<img src="Repo_image/ImgSli_1.jpg">](https://imgsli.com/MjY0MTk5) [<img src="Repo_image/ImgSli_2.jpg">](https://imgsli.com/MjY0MjA0)
+[<img src="Repo_image/ImgSli_1.jpg" width="256px"/>](https://imgsli.com/MjY0MTk5) [<img src="Repo_image/ImgSli_2.jpg" width="256px"/>](https://imgsli.com/MjY0MjA0)
 
 ## 🛠️ Try
 ### Dependencies and Installation
