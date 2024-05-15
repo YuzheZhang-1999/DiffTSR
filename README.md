@@ -15,9 +15,38 @@ Diffusion-based Blind Text Image Super-Resolution (CVPR2024)
 
 
 ## 📢 News
+- **2024.05** 🚀Inference code has been released, enjoy.
+- **2024.04** 🚀Official repository of DiffTSR.
 - **2024.03** 🌟The implementation code will be released shortly.
-- **2024.03** ❤️Accepted by CVPR2024
-- **2024.03** 🚀Official repository of DiffTSR
+- **2024.03** ❤️Accepted by CVPR2024.
+
+## 🔥 TODO
+- [x] Attach the detailed implementation and supplementary material.
+- [x] Add inference code and checkpoints for blind text image SR.
+- [ ] Add training code and scripts.
+
+## 🛠️ Try It
+### Dependencies and Installation
+
+- Pytorch >= 1.7.0
+- CUDA >= 11.0
+```
+# git clone this repository
+git clone https://github.com/YuzheZhang-1999/DiffTSR
+cd DiffTSR
+
+# create new anaconda env
+conda env create -f environment.yaml
+conda activate DiffTSR
+```
+### Download the ceckpoint
+
+
+### Inference
+```
+# check the code for more detail
+python inference_DiffTSR.py
+```
 
 
 ## 🔎 Overview of DiffTSR
@@ -36,11 +65,16 @@ Extensive experiments on synthetic and real-world datasets demonstrate that our 
 ![DiffTSR](Repo_image/paper-fig1.png)
 Blind text image super-resolution results between different methods on synthetic and real-world text images. Our method can restore text images with high text fidelity and style realness under complex strokes, severe degradation, and various text styles.
 
-## 📷 More Real-World Results
-## ![DiffTSR](Repo_image/paper-visual-comp-2.png)
-## ![DiffTSR](Repo_image/paper-visual-comp-3.png)
-## ![DiffTSR](Repo_image/paper-visual-comp-4.png)
-## ![DiffTSR](Repo_image/paper-visual-comp-5.png)
+
+<details>
+  <summary>📷 More Real-World Results</summary>
+
+  ## ![DiffTSR](Repo_image/paper-visual-comp-2.png)
+  ## ![DiffTSR](Repo_image/paper-visual-comp-3.png)
+  ## ![DiffTSR](Repo_image/paper-visual-comp-4.png)
+  ## ![DiffTSR](Repo_image/paper-visual-comp-5.png)
+
+</details>
 
 
 ## 🎓Citations
@@ -55,3 +89,8 @@ Blind text image super-resolution results between different methods on synthetic
 
 ## 🎫 License
 This project is released under the [Apache 2.0 license](LICENSE).
+
+## Acknowledgement
+Thanks to these awesome work：
+- [Latent Diffusion](https://github.com/CompVis/latent-diffusion)
+- [Benchmarking Chinese Text Recognition](https://github.com/FudanVI/benchmarking-chinese-text-recognition)
