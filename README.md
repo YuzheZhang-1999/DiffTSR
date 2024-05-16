@@ -72,7 +72,7 @@ Blind text image super-resolution results between different methods on synthetic
 
 
 <details>
-  <summary>📷 More Real-World Results</summary>
+  <summary>📷 More Visual Results</summary>
 
   ## ![DiffTSR](Repo_image/paper-visual-comp-1.jpg)
   ## ![DiffTSR](Repo_image/paper-visual-comp-2.jpg)
