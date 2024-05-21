@@ -13,8 +13,6 @@ from model.IDM.modules.diffusionmodules.util import make_beta_schedule, noise_li
 from model.TDM.models.diffusion_multinomial import extract, log_add_exp, cosine_beta_schedule
 from model.TDM.models.diffusion_multinomial import log_1_min_a, index_to_log_onehot, log_onehot_to_index
 
-from concurrent.futures import ThreadPoolExecutor
-
 
 class DiffTSR_pipline(object):
     def __init__(self,
