@@ -252,9 +252,9 @@ class DiffTSR_pipline(object):
             Icond_t, Ccond_t = self.MoM_module(c_t, z_LR, z_t, ts)
             z_t, _ = self.IDM_p_sample(z_t, z_LR, Ccond_t, ts, index=index)
             ts = torch.full((b,), index, device=self.device, dtype=torch.long)
-            log_z = index_to_log_onehot(c_t, self.num_classes)
-            log_z = self.TDM_p_sample(log_z, ts, context=Icond_t)
-            c_t = log_onehot_to_index(log_z)
+            log_c_t = index_to_log_onehot(c_t, self.num_classes)
+            log_c_t = self.TDM_p_sample(log_c_t, ts, context=Icond_t)
+            c_t = log_onehot_to_index(log_c_t)
 
         img = 1. / self.scale_factor * z_t
         img = self.VAE_model.decode(img)

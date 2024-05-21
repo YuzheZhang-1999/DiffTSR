@@ -26,4 +26,7 @@ dependencies:
     - packaging==21.3
     - 'torchmetrics<0.8'
     - taming-transformers-rom1504 
+    - axial_positional_embedding
+    - linear_attention_transformer
+    - zhconv
     - -e .

@@ -21,6 +21,8 @@ if __name__ == '__main__':
         input_image = os.path.join(input_lr_path, file_name)
         save_path = os.path.join(sr_save_path, file_name)
         lq_image_pil = Image.open(input_image).convert('RGB')
+        lq_image_pil = lq_image_pil.resize((512, 128))
+
         # Start sampling!
         sr_output = DiffTSR_model.DiffTSR_sample(lq_image_pil)
         # Save sr image!
