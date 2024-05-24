@@ -4,7 +4,6 @@
 </div>
 
 #
-
 Diffusion-based Blind Text Image Super-Resolution (CVPR2024)
 <a href='https://arxiv.org/abs/2312.08886'><img src='https://img.shields.io/badge/arXiv-2312.08886-b31b1b.svg'></a> &nbsp;&nbsp;
 
