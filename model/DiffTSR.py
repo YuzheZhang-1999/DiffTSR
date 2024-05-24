@@ -1,5 +1,4 @@
 import torch
-import copy
 import numpy as np
 from tqdm import tqdm
 from functools import partial
@@ -25,8 +24,7 @@ class DiffTSR_pipline(object):
                  MoM_module_config=None,
                  VAE_model_config=None,
                  Text_Prediction_config=None):
-        super().__init__()
-
+        super(DiffTSR_pipline, self).__init__()
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
         
         self.max_length = max_length
@@ -229,7 +227,7 @@ class DiffTSR_pipline(object):
         lq_image = transforms.ToTensor()(lq_image).float()
         lq_image = lq_image.unsqueeze(0).to(self.device)
 
-        c_t, _ = self.Text_Prediction.predict(lq_image)
+        c_t = self.Text_Prediction.predict(lq_image)
         c_t = c_t.to(self.device)
 
         z_LR = self.VAE_model.encode(lq_image)

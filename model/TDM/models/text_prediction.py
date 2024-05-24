@@ -37,7 +37,6 @@ class Text_Prediction(nn.Module):
         self.IDM_alphabet = IDM_alphabet
         self.max_length = 24
 
-
     def predict(self, input_image):
         max_length = self.max_length
         input_image = torch.nn.functional.interpolate(input_image, size=(self.imgH, self.imgW))
@@ -74,7 +73,7 @@ class Text_Prediction(nn.Module):
         for i in range(batch):
             pred = zhconv.convert(tensor2str(text_pred_list[i], self.alphabet_path),'zh-cn')
             label_index[i, :] = self.get_padding_label_from_text(pred)
-        return label_index, pred
+        return label_index
 
     def get_padding_label_from_text(self, text_str):
         max_length = self.max_length

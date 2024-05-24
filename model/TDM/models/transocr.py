@@ -38,10 +38,6 @@ class Bottleneck(nn.Module):
 
 
 class BasicBlock(nn.Module):
-    '''
-    构成ResNet的残差块
-    '''
-
     def __init__(self, inplanes, planes, downsample):
         super(BasicBlock, self).__init__()
         self.conv1 = nn.Conv2d(inplanes, planes, kernel_size=3, stride=1, padding=1)
@@ -118,7 +114,6 @@ class ResNet(nn.Module):
             downsample = None
         layers = []
         layers.append(block(inplanes, planes, downsample))
-        # self.inplanes = planes * block.expansion
         for i in range(1, blocks):
             layers.append(block(planes, planes, downsample=None))
 

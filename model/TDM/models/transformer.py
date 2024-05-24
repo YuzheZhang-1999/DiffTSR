@@ -1,6 +1,4 @@
 import math
-import numpy as np
-
 import torch
 import torch.nn as nn
 from axial_positional_embedding import AxialPositionalEmbedding
@@ -26,24 +24,47 @@ class SinusoidalPosEmb(nn.Module):
 
 
 class LinearAttentionTransformerEmbedding(nn.Module):
-    def __init__(self, input_dim, output_dim, dim, depth, n_blocks, max_seq_len, num_timesteps, heads = 8, dim_head = None, causal = False, one_kv_head = False, reversible = False, ff_chunks = 1, ff_glu = False, ff_dropout = 0., attn_layer_dropout = 0., attn_dropout = 0., blindspot_size = 1, n_local_attn_heads = 0, local_attn_window_size = 128, return_embeddings = False, receives_context = True, pkm_layers = tuple(), pkm_num_keys = 128, attend_axially = False, linformer_settings = None, context_linformer_settings = None, context_mask_flag=False):
+    def __init__(self, input_dim, 
+                 output_dim, 
+                 dim, 
+                 depth, 
+                 n_blocks, 
+                 max_seq_len, 
+                 num_timesteps, 
+                 heads = 8, 
+                 dim_head = None, 
+                 causal = False, 
+                 one_kv_head = False, 
+                 reversible = False, 
+                 ff_chunks = 1, 
+                 ff_glu = False, 
+                 ff_dropout = 0., 
+                 attn_layer_dropout = 0., 
+                 attn_dropout = 0., 
+                 blindspot_size = 1, 
+                 n_local_attn_heads = 0, 
+                 local_attn_window_size = 128, 
+                 return_embeddings = False, 
+                 receives_context = True, 
+                 pkm_layers = tuple(), 
+                 pkm_num_keys = 128, 
+                 attend_axially = False, 
+                 linformer_settings = None, 
+                 context_linformer_settings = None, 
+                 context_mask_flag=False):
         assert (max_seq_len % local_attn_window_size) == 0, 'max sequence length must be divisible by the window size, to calculate number of kmeans cluster'
         super().__init__()
-        # emb_dim = default(emb_dim, dim)
         self.max_seq_len = max_seq_len
-
         self.depth = depth
         emb_dim = dim
         self.emb_dim = emb_dim
-
-        self.depth = depth
         self.n_blocks = n_blocks
 
         self.first = nn.Embedding(input_dim, emb_dim)
 
         self.context_mask_flag = context_mask_flag
         if self.context_mask_flag:
-            self.post_embed = nn.Linear(emb_dim*2, emb_dim)     # masked token
+            self.post_embed = nn.Linear(emb_dim*2, emb_dim)
 
         self.time_pos_emb = SinusoidalPosEmb(emb_dim, num_timesteps)
         self.mlp = nn.Sequential(
@@ -52,7 +73,6 @@ class LinearAttentionTransformerEmbedding(nn.Module):
             nn.Linear(emb_dim * 4, emb_dim * n_blocks * depth)
         )
 
-        # self.token_emb = nn.Embedding(num_tokens, emb_dim)
         self.axial_pos_emb = AxialPositionalEmbedding(emb_dim, axial_shape=(max_seq_len // local_attn_window_size, local_attn_window_size))
 
         self.transformer_blocks = torch.nn.ModuleList()
@@ -91,7 +111,6 @@ class LinearAttentionTransformerEmbedding(nn.Module):
             x = self.post_embed(x)
 
         x_embed_axial = x + self.axial_pos_emb(x).type(x.type())
-        # x_embed_axial_time = x_embed_axial + time_embed
         h = torch.zeros_like(x_embed_axial)
 
         for i, block in enumerate(self.transformer_blocks):

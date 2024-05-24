@@ -1,8 +1,8 @@
-import numpy as np
 import torch
+import numpy as np
 import torch.nn.functional as F
-from inspect import isfunction
 import pytorch_lightning as pl
+from inspect import isfunction
 
 from model.IDM.utils.util import instantiate_from_config
 

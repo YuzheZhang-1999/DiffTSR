@@ -44,8 +44,13 @@ conda env create -f environment.yaml
 conda activate DiffTSR
 ```
 ### Download the checkpoint
+Download the ckpt from the 
 
-Donwload from the [[BaiduDisk](https://pan.baidu.com/s/1hfaQzIp_V6H8AhAq5dfr8A)] to ./ckpt/ folder. Password: vk9n
+- [[GoogleDrive](https://drive.google.com/drive/folders/1K6k5ZcvF3w-1MDN_gXQTdsLgFZ2SM8qy?usp=drive_link)] 
+
+- [[BaiduDisk](https://pan.baidu.com/s/1hfaQzIp_V6H8AhAq5dfr8A)] [Password: vk9n] 
+
+to ./ckpt/ folder. 
 
 
 ### Inference
