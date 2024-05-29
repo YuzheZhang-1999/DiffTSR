@@ -105,3 +105,8 @@ This project is released under the [Apache 2.0 license](LICENSE).
 Thanks to these awesome work：
 - [Latent Diffusion](https://github.com/CompVis/latent-diffusion)
 - [Benchmarking Chinese Text Recognition](https://github.com/FudanVI/benchmarking-chinese-text-recognition)
+
+<details>
+<summary>Statistics</summary>
+![visitors](https://visitor-badge.laobi.icu/badge?page_id=YuzheZhang-1999/DiffTSR)
+</details>
