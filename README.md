@@ -110,6 +110,5 @@ Thanks to these awesome work：
 <summary>Statistics</summary>
 
 ![visitors](https://visitor-badge.laobi.icu/badge?page_id=YuzheZhang-1999/DiffTSR)
-![visitors](https://visitor-badge.laobi.icu/badge?page_id=YuzheZhang-1999.DiffTSR)
 
 </details>
