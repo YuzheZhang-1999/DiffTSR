@@ -90,11 +90,12 @@ Blind text image super-resolution results between different methods on synthetic
 
 ## 🎓Citations
 ```
-@article{zhang2023diffusion,
+@inproceedings{zhang2024diffusion,
   title={Diffusion-based Blind Text Image Super-Resolution},
   author={Zhang, Yuzhe and Zhang, Jiawei and Li, Hao and Wang, Zhouxia and Hou, Luwei and Zou, Dongqing and Bian, Liheng},
-  journal={arXiv preprint arXiv:2312.08886},
-  year={2023}
+  booktitle={Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition},
+  pages={25827--25836},
+  year={2024}
 }
 ```
 
