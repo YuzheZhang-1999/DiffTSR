@@ -53,7 +53,9 @@ Please Read Before Trying～
    ```
    其中：
    
-
+   $$
+    L_{IDM} = L_2(\epsilon, \epsilon_{pred, t}) + L_{ocr}(Transocr(x^{pred}_0), TextEmbed_{gt})*\lambda, \lambda=0.02
+   $$
 
    $$
     L_{TDM} = KL(\mathcal{C(\pi_{post}(\mathbf{c_t}, \mathbf{c_0}))} || \mathcal{C(\pi_{post}(\mathbf{c_t}, \mathbf{c_{pred, t}}))})
@@ -63,13 +65,9 @@ Please Read Before Trying～
     L_{MoM} = L_{IDM} + L_{TDM}*\lambda, \lambda=1
    $$
 
-   $$
-    L_{IDM} = L_2(\epsilon, \epsilon_{pred, t}) + \lambda*L_{ocr}(Transocr(x^{pred}_0), TextEmbed_{gt}), \lambda=0.02
-   $$
-
    具体符号定义和原理推导详见[附加材料](https://openaccess.thecvf.com/content/CVPR2024/supplemental/Zhang_Diffusion-based_Blind_Text_CVPR_2024_supplemental.pdf)Section1和Algorithm 1 DiffTSR Training。
 
-  未完待续...
+    未完待续...
 
 </details>
 
