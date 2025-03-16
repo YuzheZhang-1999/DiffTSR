@@ -52,6 +52,7 @@ Please Read Before Trying～
     (3) 训练整个DiffTSR，冻结IDM和TDM，仅训练MoM，该损失为L_MoM = L_IDM+L_TDM*weight;
    ```
    其中：
+   
    $$
     L_{IDM} = L_2(\epsilon, \epsilon_{pred, t}) + \lambda*L_{ocr}(Transocr(x^{pred}_0), TextEmbed_{gt}), \lambda=0.02
    $$
@@ -67,7 +68,7 @@ Please Read Before Trying～
    具体符号定义和原理推导详见[附加材料](https://openaccess.thecvf.com/content/CVPR2024/supplemental/Zhang_Diffusion-based_Blind_Text_CVPR_2024_supplemental.pdf)Section1和Algorithm 1 DiffTSR Training。
 
   未完待续...
-  
+
 </details>
 
 <details>
