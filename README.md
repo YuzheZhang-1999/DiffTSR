@@ -54,7 +54,7 @@ Please Read Before Trying～
    其中：
    
    $$
-    L_{IDM} = L_2(\epsilon, \epsilon_{pred, t}) + L_{ocr}(Transocr(x^{pred}_0), TextEmbed_{gt})*\lambda, \lambda=0.02
+    L_{IDM} = L_2 + L_{ocr}*\lambda, \lambda=0.02
    $$
 
    $$
