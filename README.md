@@ -5,6 +5,8 @@
 
 #
 Diffusion-based Blind Text Image Super-Resolution (CVPR2024)
+<a href='https://openaccess.thecvf.com/content/CVPR2024/papers/Zhang_Diffusion-based_Blind_Text_Image_Super-Resolution_CVPR_2024_paper.pdf'><img src='https://img.shields.io/badge/CVPR-2024-blue.svg'></a> &nbsp;&nbsp;
+<a href='https://openaccess.thecvf.com/content/CVPR2024/supplemental/Zhang_Diffusion-based_Blind_Text_CVPR_2024_supplemental.pdf'><img src='https://img.shields.io/badge/Supplementary-Material-9cf'></a> &nbsp;&nbsp;
 <a href='https://arxiv.org/abs/2312.08886'><img src='https://img.shields.io/badge/arXiv-2312.08886-b31b1b.svg'></a> &nbsp;&nbsp;
 
 [Yuzhe Zhang](https://yuzhezhang-1999.github.io/)<sup>1</sup> | [Jiawei Zhang](https://scholar.google.com/citations?user=0GTpIAIAAAAJ)<sup>2</sup> | Hao Li<sup>2</sup> | [Zhouxia Wang](https://scholar.google.com/citations?user=JWds_bQAAAAJ)<sup>3</sup> | Luwei Hou<sup>2</sup> | [Dongqing Zou](https://scholar.google.com/citations?user=K1-PFhYAAAAJ)<sup>2</sup> | [Liheng Bian](https://scholar.google.com/citations?user=66IFMDEAAAAJ)<sup>1</sup>
