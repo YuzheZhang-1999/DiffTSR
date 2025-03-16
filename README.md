@@ -14,7 +14,7 @@ Diffusion-based Blind Text Image Super-Resolution (CVPR2024)
 ## 💬 Q&A
 Please Read Before Trying～
 
-### 🇨🇳 中文Q&A：对于大家关心的一些细节问题，这里给出了归纳供大家参考
+### 🇨🇳 中文Q&A：对于大家关心的一些细节问题，这里进行了归纳供大家参考
 
 1. Q: IDM中Unet用的是Stable-Diffusion的权重吗?
 
