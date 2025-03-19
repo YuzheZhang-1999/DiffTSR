@@ -40,7 +40,7 @@ Please Read Before Trying.
    **A:** 训练 IDM 时使用了两个损失函数：
    
    - **L2 loss**：用于预测噪声。
-   - **OCR loss**：用于从预测出的干净 `X0` 上检测文字。
+   - **OCR loss**：用于从预测出的干净 `x^0` 上检测文字。
    
    具体来说：
    - L2 loss 是传统 diffusion 模型中用于最小化 `(Unet 输出 - noise map)`，使 Unet 具备噪声估计能力。
@@ -101,7 +101,7 @@ Please Read Before Trying.
    **A:** When training IDM, two loss functions are used:
    
    - **L2 loss**: Used for predicting noise.
-   - **OCR loss**: Used for detecting text from the predicted clean `X0`.
+   - **OCR loss**: Used for detecting text from the predicted clean `x^0`.
    
    Specifically:
    - **L2 loss** is the traditional loss used in diffusion models, minimizing the difference between Unet output and noise map, enabling Unet to estimate noise.
