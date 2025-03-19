@@ -16,67 +16,127 @@ Diffusion-based Blind Text Image Super-Resolution (CVPR2024)
 ## 💬 Q&A
 Please Read Before Trying.
 
-### 🇨🇳 中文Q&A：对于大家关心的一些细节问题，这里进行了归纳供大家参考
+<details>
+<summary> 🇨🇳 中文 Q&A：对于大家关心的一些细节问题，这里进行了归纳供大家参考 (点击展开) </summary>
 
-1. Q: **IDM中Unet用的是Stable-Diffusion的权重吗?**
+1. **IDM 中 Unet 用的是 Stable-Diffusion 的权重吗？**
 
-   A: 不是。IDM的Unet是从头训练的，没有加载任何预训练权重，IDM的结构也和任何一个Diffusion模型的Unet不一致。但是VAE是加载了ldm的f4的VAE在open-image上预训练的权重，然后在本项目的CTW-HQ-Train数据集上进行了微调，微调了100,000iter，batch_size=16。此外包括TDM和MoM在内的模型均未使用预训练模型，均为从头训练获得。详细训练设置请看 [附加材料](https://openaccess.thecvf.com/content/CVPR2024/supplemental/Zhang_Diffusion-based_Blind_Text_CVPR_2024_supplemental.pdf)Section 1.4。
+   **A:** 不是。IDM 的 Unet 是从头训练的，没有加载任何预训练权重，IDM 的结构也和任何一个 Diffusion 模型的 Unet 不一致。但是 VAE 是加载了 ldm 的 f4 VAE 在 Open-Image 上预训练的权重，然后在本项目的 CTR-TSR-Train 数据集上进行了微调，微调了 100,000 iter，batch_size=16。此外，包括 TDM 和 MoM 在内的模型均未使用预训练模型，均为从头训练获得。详细训练设置请看 [附加材料](https://openaccess.thecvf.com/content/CVPR2024/supplemental/Zhang_Diffusion-based_Blind_Text_CVPR_2024_supplemental.pdf) Section 1.4。
 
-2. Q: **DiffTSR模型的输入尺寸和要求，需要将输入resize吗？**
+2. **DiffTSR 模型的输入尺寸和要求，需要将输入 resize 吗？**
 
-   A: 模型的LR输入需要统一resize到 width=512/height=128；此外因为本项目仅考虑单行文本输入，您所输入的图片需要只包含一行文本，对于IDM和TDM都仅适配了单行文本，在多行本文输入会出现效果扭曲和错误的结果。
+   **A:** 模型的 LR 输入需要统一 resize 到 `width=512` / `height=128`。此外，因为本项目仅考虑单行文本输入，输入图片需要只包含一行文本。IDM 和 TDM 仅适配单行文本，多行文本输入会导致效果扭曲和错误的结果。
 
-3. Q: **图片的推理速度非常慢，有什么解决办法吗？**
+3. **图片的推理速度非常慢，有什么解决办法吗？**
+
+   **A:** 由于本项目基于 Diffusion 技术，每处理一张图像都需要进行 `T` 次迭代（默认 `T=200`）。若想提升推理速度，可以考虑：
    
-   A: 因为该项目的技术基于Diffusion，所以每处理一张图像都需要进行T次迭代过程（T=200默认）。若想提升推理速度，可以考虑：
-   ```
-   （1）减小T，因为采样器为DDIM，在T=20时仍有较好表现；
-   （2）对DiffTSR模型进行量化，可以参考Diffusion模型量化的相关Repo；
-   （3）使用本项目的Baseline model，虽然Baseline会在一定程度上减小性能，但是可以提升约2倍的耗时收益，且对于大多数场景不会有明显效果退化;
-   （4）对我的模型进行蒸馏；或者根据该论文训练一个更小的IDM模型，文字场景可能并不需要类似于通用场景图像生成这么重的模型。
-   ```
+   - **减小 `T`**，由于采样器为 DDIM，在 `T=20` 时仍有较好表现。
+   - **对 DiffTSR 模型进行量化**，可参考 Diffusion 模型量化的相关 Repo。
+   - **使用本项目的 Baseline model**，虽然 Baseline 会在一定程度上降低性能，但可提升约 2 倍的推理速度，并且在大多数场景下不会明显退化。
+   - **对模型进行蒸馏**，或基于论文训练一个更小的 IDM 模型，文本场景可能不需要像通用场景图像生成那样重的模型。
 
-4. Q: **在训练IDM的时候损失是怎么设置的，text_recognization loss是如何实现的？**
+4. **在训练 IDM 时，损失是如何设置的？text_recognition loss 是如何实现的？**
 
-   A: 训练IDM的时候，使用了两个损失函数（1）L2 loss用于预测噪声，（2）OCR loss用于从预测出的干净的X0上检测文字。
-   ```
-    (1) 其中 L2 loss 即传统diffsion模型中所用的用于最小化（Unet输出-noise map）,从而使Unet具备噪声估计能力；
-    (2) 其中 OCR loss 为从z_t获得z^(t-1)后，再根据这个得到z^0，然后获得x^0=Decoder(z^0)，然后将x^0输入给权重冻结的TransOCR模型从而获得x^0上所包含的文字embedding，然后计算预测的pred-text-embedding和gt-text-embedding之间的cross-entropy loss，即为该OCR loss，且OCR loss添加了一个weight=0.02的约束。
-   ```
-   内容详见[issue](https://github.com/YuzheZhang-1999/DiffTSR/issues/13)。
+   **A:** 训练 IDM 时使用了两个损失函数：
+   
+   - **L2 loss**：用于预测噪声。
+   - **OCR loss**：用于从预测出的干净 `X0` 上检测文字。
+   
+   具体来说：
+   - L2 loss 是传统 diffusion 模型中用于最小化 `(Unet 输出 - noise map)`，使 Unet 具备噪声估计能力。
+   - OCR loss 通过 `z_t` 计算 `z^(t-1)`，再得到 `z^0`，然后解码 `z^0` 得到 `x^0`。将 `x^0` 输入冻结权重的 TransOCR 模型，获得 `x^0` 上的文字 embedding，计算预测的 `pred-text-embedding` 和 `gt-text-embedding` 之间的 cross-entropy loss，OCR loss 额外添加了 `weight=0.02` 约束。
+   
+   详细内容参见 [Issue](https://github.com/YuzheZhang-1999/DiffTSR/issues/13)。
 
-5. Q: **训练的损失函数是什么？**
-  
-   A: DiffTSR模型的训练经历了三个步骤，每个步骤用了不同的损失函数的组合。分别为：训练IDM、训练TDM、训练MoM。
-   ```
-    (1) 训练IDM，IDM从头训练Unet，该损失为L_IDM，包含L2 loss和OCR loss；
-    (2) 训练TDM，TDM从头训练Transformer，该损失为L_TDM，参考[Multinomial DIffusion](https://arxiv.org/pdf/2102.05379)Section 4;
-    (3) 训练整个DiffTSR，冻结IDM和TDM，仅训练MoM，该损失为L_MoM = L_IDM+L_TDM*weight;
-   ```
+5. **训练的损失函数是什么？**
+
+   **A:** DiffTSR 模型训练经历了三个阶段，每个阶段使用了不同损失函数的组合：
+   
+   - **训练 IDM**：IDM 从头训练 Unet，损失函数为 `L_IDM`，包含 `L2 loss` 和 `OCR loss`。
+   - **训练 TDM**：TDM 从头训练 Transformer，损失函数为 `L_TDM`，参考 [Multinomial Diffusion](https://arxiv.org/pdf/2102.05379) Section 4。
+   - **训练 DiffTSR 整体**：冻结 IDM 和 TDM，仅训练 MoM，损失函数为 `L_MoM = L_IDM + L_TDM * weight`。
+   
    其中：
    
    $$
-    L_{IDM} = L_2 + \lambda*L_{OCR}, \lambda=0.02
+   L_{IDM} = L_2 + \lambda*L_{OCR}, \lambda=0.02
    $$
 
    $$
-    L_{TDM} = KL(\mathcal{C(\pi_{post}(\mathbf{c_t}, \mathbf{c_0}))} || \mathcal{C(\pi_{post}(\mathbf{c_t}, \mathbf{c_{pred, t}}))})
+   L_{TDM} = KL(\mathcal{C(\pi_{post}(\mathbf{c_t}, \mathbf{c_0}))} || \mathcal{C(\pi_{post}(\mathbf{c_t}, \mathbf{c_{pred, t}}))})
    $$
 
    $$
-    L_{MoM} = L_{IDM} + \lambda*L_{TDM}, \lambda=1
+   L_{MoM} = L_{IDM} + \lambda*L_{TDM}, \lambda=1
    $$
 
-   具体符号定义和原理推导详见[附加材料](https://openaccess.thecvf.com/content/CVPR2024/supplemental/Zhang_Diffusion-based_Blind_Text_CVPR_2024_supplemental.pdf)Section1和Algorithm 1 DiffTSR Training。
+   具体符号定义和理论推导详见 [附加材料](https://openaccess.thecvf.com/content/CVPR2024/supplemental/Zhang_Diffusion-based_Blind_Text_CVPR_2024_supplemental.pdf) Section 1 及 Algorithm 1 DiffTSR Training。
 
-    **未完待续...**
+   **未完待续...**
 
 </details>
 
 <details>
-<summary>🇬🇧 English Version(Click to expand)</summary>
+<summary>🇬🇧 English Q&A: For some details you may want to know, here is a summary for your reference (click to expand)</summary>
 
-    Pending...
+1. Q: **Does the Unet in IDM use Stable-Diffusion weights?**
+
+   A: No. The Unet in IDM is trained from scratch and does not load any pre-trained weights. Additionally, the structure of IDM is different from any Diffusion model's Unet. However, the VAE loads the pre-trained weights from `ldm f4 VAE`, which was pre-trained on the Open-Image dataset and then fine-tuned on the CTR-TSR-Train dataset in this project. The fine-tuning was conducted for 100,000 iterations with a batch size of 16. Moreover, models including TDM and MoM were also trained from scratch without using any pre-trained models. For detailed training settings, please refer to [Supplementary Material](https://openaccess.thecvf.com/content/CVPR2024/supplemental/Zhang_Diffusion-based_Blind_Text_CVPR_2024_supplemental.pdf) Section 1.4.
+
+2. Q: **What are the input size and requirements for the DiffTSR model? Does the input need to be resized?**
+
+   A: The LR input of the model needs to be uniformly resized to `width=512` and `height=128`. Additionally, since this project only considers single-line text input, the input image must contain only one line of text. Both IDM and TDM are designed specifically for single-line text, and multi-line text input will result in distortion and incorrect results.
+
+3. Q: **The inference speed of the image is very slow. What are the possible solutions?**
+   
+   A: Since this project is based on Diffusion technology, processing a single image requires `T` iterations (default `T=200`). To improve inference speed, you may consider:
+   ```
+   (1) Reducing `T`, as the sampler is DDIM, and it still performs well at `T=20`;
+   (2) Quantizing the DiffTSR model—refer to relevant repositories on Diffusion model quantization;
+   (3) Using the project's Baseline model, which, although it may slightly reduce performance, provides approximately 2× speed-up while maintaining acceptable performance in most scenarios;
+   (4) Performing model distillation on IDM or training a smaller IDM model. In textual scenarios, a heavy model like general image generation may not be necessary.
+   ```
+
+4. Q: **How is the loss function set when training IDM? How is the text recognition loss implemented?**
+
+   A: When training IDM, two loss functions are used:
+   ```
+   (1) L2 loss for predicting noise;
+   (2) OCR loss for detecting text from the predicted clean `X0`.
+   ```
+   ```
+   (1) L2 loss is the traditional loss used in diffusion models, minimizing the difference between Unet output and noise map, enabling Unet to estimate noise;
+   (2) OCR loss is computed by first obtaining `z^(t-1)` from `z_t`, then deriving `z^0`, and subsequently decoding `z^0` to obtain `x^0`. The decoded `x^0` is fed into a frozen TransOCR model to obtain the text embedding in `x^0`. The cross-entropy loss is then computed between the predicted text embedding (`pred-text-embedding`) and the ground truth text embedding (`gt-text-embedding`). A weight constraint of `weight=0.02` is applied to the OCR loss.
+   ```
+   For more details, see [Issue](https://github.com/YuzheZhang-1999/DiffTSR/issues/13).
+
+5. Q: **What are the loss functions used during training?**
+  
+   A: The DiffTSR model training consists of three stages, each using a different combination of loss functions:
+   ```
+   (1) Training IDM: IDM trains Unet from scratch using loss `L_IDM`, which includes L2 loss and OCR loss;
+   (2) Training TDM: TDM trains the Transformer from scratch using loss `L_TDM`, referring to [Multinomial Diffusion](https://arxiv.org/pdf/2102.05379) Section 4;
+   (3) Training the entire DiffTSR: IDM and TDM are frozen, and only MoM is trained with loss `L_MoM = L_IDM + L_TDM * weight`.
+   ```
+   Where:
+   
+   $$
+   L_{IDM} = L_2 + \lambda*L_{OCR}, \lambda=0.02
+   $$
+
+   $$
+   L_{TDM} = KL(\mathcal{C(\pi_{post}(\mathbf{c_t}, \mathbf{c_0}))} || \mathcal{C(\pi_{post}(\mathbf{c_t}, \mathbf{c_{pred, t}}))})
+   $$
+
+   $$
+   L_{MoM} = L_{IDM} + \lambda*L_{TDM}, \lambda=1
+   $$
+
+   For detailed symbol definitions and theoretical derivations, see [Supplementary Material](https://openaccess.thecvf.com/content/CVPR2024/supplemental/Zhang_Diffusion-based_Blind_Text_CVPR_2024_supplemental.pdf) Section 1 and Algorithm 1 DiffTSR Training.
+
+    **To be continued...**
+
 
 </details>
 
