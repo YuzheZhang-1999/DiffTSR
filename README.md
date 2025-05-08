@@ -18,6 +18,11 @@ Please Read Before Trying.
 <details>
 <summary> 🇨🇳 中文 Q&A：对于大家关心的一些细节问题，这里进行了归纳供大家参考 (点击展开) </summary>
 
+0. **DiffTSR的对真实世界图片的泛化性，是否泛化到Real-World Scenarios？**
+
+   **A:** DiffTSR在训练过程中考虑到了真实世界的各种退化，继承了BSRGAN和Real-ESRGAN中对于复杂退化流程的构建。且“Blind Text Image Super-Resolution”的Blind-盲图像恢复就是指针对真实世界未知退化的图像恢复。
+
+
 1. **IDM 中 Unet 用的是 Stable-Diffusion 的权重吗？**
 
    **A:** 不是。IDM 的 Unet 是从头训练的，没有加载任何预训练权重，IDM 的结构也和任何一个 Diffusion 模型的 Unet 不一致。但是 VAE 是加载了 ldm 的 f4 VAE 在 Open-Image 上预训练的权重，然后在本项目的 CTR-TSR-Train 数据集上进行了微调，微调了 100,000 iter，batch_size=16。此外，包括 TDM 和 MoM 在内的模型均未使用预训练模型，均为从头训练获得。详细训练设置请看 [附加材料](https://openaccess.thecvf.com/content/CVPR2024/supplemental/Zhang_Diffusion-based_Blind_Text_CVPR_2024_supplemental.pdf) Section 1.4。
@@ -78,6 +83,10 @@ Please Read Before Trying.
 
 <details>
 <summary>🇬🇧 English Q&A: For some details you may want to know, here is a summary for your reference (click to expand)</summary>
+
+0. **Generalization of DiffTSR to Real-World Scenarios**
+
+   **A:** DiffTSR takes various real-world degradations into account during training, inheriting the complex degradation modeling from BSRGAN and Real-ESRGAN. Moreover, the "Blind" in "Blind Text Image Super-Resolution" specifically refers to the restoration of images with unknown degradations, which is targeted at real-world scenarios.
 
 1. **Does the Unet in IDM use Stable-Diffusion weights?**
 
