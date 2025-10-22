@@ -194,9 +194,11 @@ python inference_DiffTSR.py
 
 ### Training
 ```
-# cd DiffTSR/train/README_train.md
-# check the README_train for training details
-# Please note that you need to carefully review the training sh file and the configuration yaml. Some of the configurations need to be modified according to your data or address. 
+# cd DiffTSR/train/README.md
+# check the README.md file for training details
+
+# Please note that you need to carefully review the training sh file and the configuration yaml. 
+# Some of the configurations need to be modified according to your data or address. 
 ```
 
 
