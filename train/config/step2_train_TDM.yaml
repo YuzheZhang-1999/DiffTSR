@@ -1,0 +1,103 @@
+model:
+  base_learning_rate: 1.0e-04
+  target: model.TDM.models.diffusion_multinomial.MultinomialDiffusion
+  params:
+    input_key: text_label
+    context_key: lq_image
+    length: 24
+    num_classes: 6736
+    timesteps: 1000
+    transformer_dim: 768
+    loss_type: vb_stochastic
+    parametrization: x0
+
+    denoise_fn_config:
+      target: model.TDM.models.modules.DynamicsTransformer
+      params:
+        num_classes: 6736
+        transformer_dim: 768
+        transformer_heads: 16
+        transformer_depth: 12
+        transformer_blocks: 1
+        max_seq_len: 24
+        diffusion_steps: 1000
+        attn_layer_dropout: 0.0
+        transformer_local_heads: 8
+        transformer_local_size: 4
+        transformer_reversible: False
+        receives_context: True
+
+    cond_stage_config:
+      target: model.IDM.models.autoencoder.AutoencoderKL
+      params:
+        monitor: val/rec_loss
+        embed_dim: 3
+        ## for my own finetuned VAE 000022.ckpt, you should replace it with your VAE ckpt path after step0_train_IDM_VAE
+        ckpt_path: train/ckpt/IDM/ft_vae_epoch=000022.ckpt  
+        lossconfig:
+          target: model.modules.losses.LPIPSWithDiscriminator
+          params:
+            disc_start: 50001 
+            kl_weight: 1.0e-06
+            disc_weight: 0.5
+        ddconfig:
+          double_z: true
+          z_channels: 3
+          resolution: 512
+          in_channels: 3
+          out_ch: 3
+          ch: 128
+          ch_mult:
+          - 1
+          - 2
+          - 4
+          num_res_blocks: 2
+          attn_resolutions: []
+          dropout: 0.0
+
+data:
+  target: main.DataModuleFromConfig
+  params:
+    batch_size: 1
+    num_workers: 192
+    wrap: false
+    train:
+      target: train.dataset.IDM_training_dataset.IDM_Training_Dataset
+      params:
+        ## just for debug, change to train folder for training
+        FudanVI_lmdb_folder: train/data/valid_dataset/fudanvi_image_lmdb/images/scene_val
+        ## just for debug, change to train folder for training
+        hq_image_list_txt: train/data/valid_dataset/fudanvi_image_lmdb/selected_hq_images_index.txt
+        max_text_length: 24
+        imgW: 512
+        imgH: 128
+        resize_flag: true
+        degrade_flag: true
+        max_len: -1
+        lq_image_probability: [0.4, 0.3, 0.3]
+    validation:
+      target: train.dataset.IDM_training_dataset.IDM_Training_Dataset
+      params:  
+        FudanVI_lmdb_folder: train/data/valid_dataset/fudanvi_image_lmdb/images/scene_val
+        hq_image_list_txt: train/data/valid_dataset/fudanvi_image_lmdb/selected_hq_images_index.txt
+        max_text_length: 24
+        imgW: 512
+        imgH: 128
+        resize_flag: true
+        degrade_flag: true
+        max_len: 5000
+        lq_image_probability: [0.4, 0.3, 0.3]  # real-esrgan, bsrgan, hq
+
+
+lightning:
+  callbacks:
+    image_logger:
+      target: main.ImageLogger
+      params:
+        batch_frequency: 750
+        max_images: 12
+        increase_log_steps: false
+
+  trainer:
+    benchmark: True
+    max_epochs: 3000

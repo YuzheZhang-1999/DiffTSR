@@ -1,6 +1,5 @@
 from abc import abstractmethod
 import math
-
 import numpy as np
 import torch as th
 import torch.nn as nn
@@ -26,7 +25,6 @@ def convert_module_to_f32(x):
     pass
 
 
-## go
 class AttentionPool2d(nn.Module):
     """
     Adapted from CLIP: https://github.com/openai/CLIP/blob/main/clip/model.py

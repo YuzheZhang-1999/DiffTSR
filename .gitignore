@@ -5,6 +5,7 @@
 *.pth
 *.pt
 *.cfg
+*.mdb
 .DS_Store
 */.DS_Store
 */*/.DS_Store

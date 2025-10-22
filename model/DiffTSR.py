@@ -19,11 +19,11 @@ class DiffTSR_pipline(object):
                  num_classes = 6736,
                  transformer_dim = 768,
                  scale_factor = 0.18215,
-                 IDM_Unet_config=None,
-                 TDM_Decoder_config=None,
-                 MoM_module_config=None,
-                 VAE_model_config=None,
-                 Text_Prediction_config=None):
+                 IDM_Unet_config = None,
+                 TDM_Decoder_config = None,
+                 MoM_module_config = None,
+                 VAE_model_config = None,
+                 Text_Prediction_config = None):
         super(DiffTSR_pipline, self).__init__()
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
         

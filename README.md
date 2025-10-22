@@ -149,6 +149,7 @@ Please Read Before Trying.
 
 
 ## 📢 News
+- 🚀Training Code has been released, enjoy.
 - **2024.05** 🚀Inference code has been released, enjoy.
 - **2024.04** 🚀Official repository of DiffTSR.
 - **2024.03** 🌟The implementation code will be released shortly.
@@ -157,7 +158,7 @@ Please Read Before Trying.
 ## 🔥 TODO
 - [x] Attach the detailed implementation and supplementary material.
 - [x] Add inference code and checkpoints for blind text image SR.
-- [ ] Add training code and scripts.
+- [x] Add training code and scripts.
 
 ## 👁️ Gallery
 
@@ -185,13 +186,19 @@ Please download the checkpoint file from the URL below to the ./ckpt/ folder.
 - [[BaiduDisk](https://pan.baidu.com/s/1hfaQzIp_V6H8AhAq5dfr8A)] [Password: vk9n] 
 
 
-
-
 ### Inference
 ```
 python inference_DiffTSR.py
 # check the code for more detail
 ```
+
+### Training
+```
+# cd DiffTSR/train/README_train.md
+# check the README_train for training details
+# Please note that you need to carefully review the training sh file and the configuration yaml. Some of the configurations need to be modified according to your data or address. 
+```
+
 
 ## 🔎 Overview of DiffTSR
 ![DiffTSR](Repo_image/paper-DiffTSR-model.jpg)

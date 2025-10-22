@@ -92,3 +92,38 @@ def strQ2B(ustring):
 
         rstring += chr(inside_code)
     return rstring
+
+
+def converter(label):
+    string_label = label
+    label = [i for i in label]
+    alp2num = alp2num_character
+
+    batch = len(label)
+    length = torch.Tensor([len(i) for i in label]).long().cuda()
+    max_length = max(length)
+
+    text_input = torch.zeros(batch, max_length).long().cuda()
+    for i in range(batch):
+        for j in range(len(label[i]) - 1):
+            try:
+                text_input[i][j + 1] = alp2num[label[i][j]]
+            except:
+                text_input[i][j + 1] = alp2num['~']
+
+    sum_length = sum(length)
+    text_all = torch.zeros(sum_length).long().cuda()
+    start = 0
+    for i in range(batch):
+        for j in range(len(label[i])):
+            if j == (len(label[i])-1):
+                text_all[start + j] = alp2num['END']
+            else:
+                try:
+                    text_all[start + j] = alp2num[label[i][j]]
+                except:
+                    text_all[start + j] = alp2num['~']
+        start += len(label[i])
+
+    else:
+        return length, text_input, text_all, string_label

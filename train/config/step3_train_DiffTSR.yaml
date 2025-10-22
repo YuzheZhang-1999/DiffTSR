@@ -1,0 +1,158 @@
+model:
+  base_learning_rate: 1.0e-05
+  target: model.DiffTSR_training.DiffTSR_training_pipline
+  params:
+    max_length: 24
+    num_classes: 6736
+    transformer_dim: 768
+
+    VAE_pretrained_ckpt: train/logs/step0_finetune_IDM_VAE/temp_exp_do_not_use/checkpoints/last.ckpt
+    IDM_pretrained_ckpt: train/logs/step1_train_IDM/temp_exp_do_not_use/checkpoints/last.ckpt
+    TDM_pretrained_ckpt: train/logs/step2_train_TDM/temp_exp_do_not_use/checkpoints/last.ckpt
+
+    lr_image_key: lq_image
+    hr_image_key: hq_image
+    text_label_key: text_label
+    ocr_label_key: label_ocr
+    
+    IDM_Unet_config:
+      target: model.IDM.modules.diffusionmodules.openaimodel.UNetModel
+      params:
+        image_size: [32, 128]
+        in_channels: 6
+        out_channels: 3
+        model_channels: 320
+        attention_resolutions:
+        - 8
+        - 4
+        - 2
+        num_res_blocks: 2
+        channel_mult:
+        - 1
+        - 2
+        - 3
+        - 4
+        num_heads: 8
+        resblock_updown: true
+        use_spatial_transformer: true
+        transformer_depth: 1
+        context_dim: 160
+        legacy: False
+
+    TDM_Decoder_config:
+      target: model.TDM.models.modules.DynamicsTransformer
+      params:
+        num_classes: 6736
+        transformer_dim: 768
+        transformer_heads: 16
+        transformer_depth: 12
+        transformer_blocks: 1
+        max_seq_len: 24
+        diffusion_steps: 1000
+        attn_layer_dropout: 0.0
+        transformer_local_heads: 8
+        transformer_local_size: 4
+        transformer_reversible: False
+        receives_context: True  
+
+    MoM_module_config:
+        target: model.MoM.MoM.MoM_model
+        params:
+          MoM_Unet:
+            target: model.IDM.modules.diffusionmodules.openaimodel.UNetModel
+            params:
+              image_size: [32, 128]
+              in_channels: 6
+              out_channels: 3
+              model_channels: 32
+              attention_resolutions:
+              - 0
+              num_res_blocks: 2
+              channel_mult:
+              - 1
+              - 2
+              num_heads: 4
+              resblock_updown: true
+              use_spatial_transformer: true
+              transformer_depth: 1
+              context_dim: 128
+              legacy: False
+          MoM_Transformer:
+            target: model.IDM.modules.encoders.modules.BERTEmbedder
+            params:
+              n_embed: 160
+              n_layer: 4
+              vocab_size: 6736
+              max_seq_len: 24
+              use_tokenizer: False
+
+    VAE_model_config:
+      target: model.IDM.models.autoencoder.AutoencoderKL
+      params:
+        embed_dim: 3
+        lossconfig:
+          target: model.modules.losses.LPIPSWithDiscriminator
+          params:
+            disc_start: 50001
+            kl_weight: 1.0e-06
+            disc_weight: 0.5
+        ddconfig:
+          double_z: true
+          z_channels: 3
+          resolution: 512
+          in_channels: 3
+          out_ch: 3
+          ch: 128
+          ch_mult:
+          - 1
+          - 2
+          - 4
+          num_res_blocks: 2
+          attn_resolutions: []
+          dropout: 0.0
+
+data:
+  target: main.DataModuleFromConfig
+  params:
+    batch_size: 1
+    num_workers: 192
+    wrap: false
+    train:
+      target: train.dataset.IDM_training_dataset.IDM_Training_Dataset
+      params:
+        ## just for debug, change to train folder for training
+        FudanVI_lmdb_folder: train/data/valid_dataset/fudanvi_image_lmdb/images/scene_val
+        ## just for debug, change to train folder for training
+        hq_image_list_txt: train/data/valid_dataset/fudanvi_image_lmdb/selected_hq_images_index.txt
+        max_text_length: 24
+        imgW: 512
+        imgH: 128
+        resize_flag: true
+        degrade_flag: true
+        max_len: -1
+        lq_image_probability: [0.5, 0.5, 0.0]
+    validation:
+      target: train.dataset.IDM_training_dataset.IDM_Training_Dataset
+      params:  
+        FudanVI_lmdb_folder: train/data/valid_dataset/fudanvi_image_lmdb/images/scene_val
+        hq_image_list_txt: train/data/valid_dataset/fudanvi_image_lmdb/selected_hq_images_index.txt
+        max_text_length: 24
+        imgW: 512
+        imgH: 128
+        resize_flag: true
+        degrade_flag: true
+        max_len: 5000
+        lq_image_probability: [0.5, 0.5, 0.0]  # real-esrgan, bsrgan, hq
+
+lightning:
+  callbacks:
+    image_logger:
+      target: main.ImageLogger
+      params:
+        batch_frequency: 750
+        max_images: 12
+        increase_log_steps: false
+
+  trainer:
+    benchmark: True
+    max_epochs: 3000

@@ -1,0 +1,141 @@
+model:
+  base_learning_rate: 1.0e-04
+  target: model.IDM.modules.IDM_diffusion.IDM_Diffusion
+  params:
+    linear_start: 0.0015
+    linear_end: 0.0205
+    log_every_t: 100
+    timesteps: 1000
+    loss_type: l1
+    
+    pixel_loss_type: custom
+    pixel_loss_config:
+      target: model.modules.losses.Trans_OCR_loss
+      params:
+        loss_weight: 2.0e-02
+        imgH: 32
+        imgW: 256
+        alphabet_path: model/TDM/utils/benchmark.txt
+        ckpt_path: train/ckpt/others/transocr.pth
+
+    first_stage_key: hq_image
+    cond_stage_key: [lq_image, text_label, label_ocr]
+    image_size: [32, 128]
+    channels: 3
+    concat_mode: true
+    cond_stage_trainable: true
+    conditioning_key: concat_and_crossattn
+    monitor: val/loss_simple_ema
+    scale_factor: 0.18215
+    use_ema: False
+    ckpt_path: ~
+
+    unet_config:
+      target: model.IDM.modules.diffusionmodules.openaimodel.UNetModel
+      params:
+        image_size: [32, 128]
+        in_channels: 6
+        out_channels: 3
+        model_channels: 320
+        attention_resolutions:
+        - 8
+        - 4
+        - 2
+        num_res_blocks: 2
+        channel_mult:
+        - 1
+        - 2
+        - 3
+        - 4
+        num_heads: 8
+        resblock_updown: true
+        use_spatial_transformer: true
+        transformer_depth: 1
+        context_dim: 160
+        use_checkpoint: True
+        legacy: False
+
+    first_stage_config:
+      target: model.IDM.models.autoencoder.AutoencoderKL
+      params:
+        monitor: val/rec_loss
+        embed_dim: 3
+        ## for my own finetuned VAE 000022.ckpt, you should replace it with your VAE ckpt path after step0_train_IDM_VAE
+        ckpt_path: train/ckpt/IDM/ft_vae_epoch=000022.ckpt  
+        lossconfig:
+          target: model.modules.losses.LPIPSWithDiscriminator
+          params:
+            disc_start: 50001
+            kl_weight: 1.0e-06
+            disc_weight: 0.5
+        ddconfig:
+          double_z: true
+          z_channels: 3
+          resolution: 512
+          in_channels: 3
+          out_ch: 3
+          ch: 128
+          ch_mult:
+          - 1
+          - 2
+          - 4
+          num_res_blocks: 2
+          attn_resolutions: []
+          dropout: 0.0
+    
+    cond_stage_config:
+      target: model.IDM.modules.encoders.modules.BERTEmbedder
+      params:
+        n_embed: 160
+        n_layer: 4
+        vocab_size: 6736
+        max_seq_len: 24
+        use_tokenizer: False
+
+
+data:
+  target: main.DataModuleFromConfig
+  params:
+    batch_size: 1
+    num_workers: 192
+    wrap: false
+    train:
+      target: train.dataset.IDM_training_dataset.IDM_Training_Dataset
+      params:
+        ## just for debug, change to train folder for training
+        FudanVI_lmdb_folder: train/data/valid_dataset/fudanvi_image_lmdb/images/scene_val
+        ## just for debug, change to train folder for training
+        hq_image_list_txt: train/data/valid_dataset/fudanvi_image_lmdb/selected_hq_images_index.txt
+        max_text_length: 24
+        imgW: 512
+        imgH: 128
+        resize_flag: true
+        degrade_flag: true
+        max_len: -1
+        lq_image_probability: [0.5, 0.5, 0.0]
+    validation:
+      target: train.dataset.IDM_training_dataset.IDM_Training_Dataset
+      params:  
+        FudanVI_lmdb_folder: train/data/valid_dataset/fudanvi_image_lmdb/images/scene_val
+        hq_image_list_txt: train/data/valid_dataset/fudanvi_image_lmdb/selected_hq_images_index.txt
+        max_text_length: 24
+        imgW: 512
+        imgH: 128
+        resize_flag: true
+        degrade_flag: true
+        max_len: 5000
+        lq_image_probability: [0.5, 0.5, 0.0]  # real-esrgan, bsrgan, hq
+        
+        
+lightning:
+  callbacks:
+    image_logger:
+      target: main.ImageLogger
+      params:
+        batch_frequency: 750
+        max_images: 12
+        increase_log_steps: false
+
+  trainer:
+    benchmark: True
+    max_epochs: 3000

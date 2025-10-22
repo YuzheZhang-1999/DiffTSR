@@ -1,8 +1,10 @@
-import torch
+import torch, math
 import numpy as np
+from einops import rearrange
 import torch.nn.functional as F
 import pytorch_lightning as pl
 from inspect import isfunction
+from torch.optim.lr_scheduler import LambdaLR
 
 from model.IDM.utils.util import instantiate_from_config
 
@@ -88,22 +90,50 @@ def cosine_beta_schedule(timesteps, s = 0.008):
     return alphas
 
 
+def disabled_train(self, mode=True):
+    """Overwrite model.train with this function to make sure train/eval mode
+    does not change anymore."""
+    return self
+
+
 class MultinomialDiffusion(pl.LightningModule):
-    def __init__(self, 
-                 num_classes, 
-                 denoise_fn_config, 
-                 timesteps=1000,
-                 loss_type='vb_stochastic',
-                 parametrization='x0'):
+    def __init__(self,
+                 input_key = 'label_index',
+                 context_key = 'image',
+                 length = 24,
+                 num_classes = 6736,
+                 timesteps = 1000,
+                 transformer_dim = 768,
+                 loss_type = 'vb_stochastic',
+                 parametrization = 'x0',
+                 denoise_fn_config = None,
+                 cond_stage_config = None,
+                 scheduler_config = None,
+                 scale_factor = 0.18215):
         
         super(MultinomialDiffusion, self).__init__()
         assert parametrization in ('x0', 'direct')
+
+        self.length = length
+        self.input_key = input_key
+        self.context_key = context_key
+        self.scale_factor = scale_factor
+        self.transformer_dim = transformer_dim
+
+        self.use_scheduler = scheduler_config is not None
+        if self.use_scheduler:
+            self.scheduler_config = scheduler_config
 
         if loss_type == 'vb_all':
             print('Computing the loss using the bound on _all_ timesteps.'
                   ' This is expensive both in terms of memory and computation.')
 
-        self.model = DiffusionWrapper(denoise_fn_config)
+        self.denoise_fn = DiffusionWrapper(denoise_fn_config)
+        self.cond_stage_model = instantiate_from_config(cond_stage_config).eval()
+        self.cond_stage_model.train = disabled_train
+        for param in self.cond_stage_model.parameters():
+            param.requires_grad = False
+
         self.num_classes = num_classes
         self.loss_type = loss_type
         self.num_timesteps = timesteps
@@ -127,7 +157,6 @@ class MultinomialDiffusion(pl.LightningModule):
         self.register_buffer('log_1_min_alpha', log_1_min_alpha.float())
         self.register_buffer('log_cumprod_alpha', log_cumprod_alpha.float())
         self.register_buffer('log_1_min_cumprod_alpha', log_1_min_cumprod_alpha.float())
-
         self.register_buffer('Lt_history', torch.zeros(timesteps))
         self.register_buffer('Lt_count', torch.zeros(timesteps))
 
@@ -158,9 +187,14 @@ class MultinomialDiffusion(pl.LightningModule):
 
         return log_probs
 
-    def predict_start(self, log_x_t, t):
+    def predict_start(self, log_x_t, t, context):
         x_t = log_onehot_to_index(log_x_t)
-        out = self.model(t, x_t)
+        context = self.cond_stage_model.encode(context)
+        context = context.sample()*self.scale_factor
+        context = context.view(context.shape[0], -1, self.transformer_dim)
+
+        out = self.denoise_fn(x_t, t, context)
+
         assert out.size(0) == x_t.size(0)
         assert out.size(1) == self.num_classes
         assert out.size()[2:] == x_t.size()[1:]
@@ -191,28 +225,17 @@ class MultinomialDiffusion(pl.LightningModule):
 
         return log_EV_xtmin_given_xt_given_xstart
 
-    def p_pred(self, log_x, t):
-        if self.parametrization == 'x0':
-            log_x_recon = self.predict_start(log_x, t=t)
-            log_model_pred = self.q_posterior(
-                log_x_start=log_x_recon, log_x_t=log_x, t=t)
-        elif self.parametrization == 'direct':
-            log_model_pred = self.predict_start(log_x, t=t)
-        else:
-            raise ValueError
+    def p_pred(self, log_x, t, context):
+        log_x_recon = self.predict_start(log_x, t=t, context=context)
+        log_model_pred = self.q_posterior(log_x_start=log_x_recon, log_x_t=log_x, t=t)
+
         return log_model_pred
 
     @torch.no_grad()
-    def p_sample(self, log_x, t):
-        model_log_prob = self.p_pred(log_x=log_x, t=t)
+    def p_sample(self, log_x, t, context):
+        model_log_prob = self.p_pred(log_x=log_x, t=t, context=context)
         out = self.log_sample_categorical(model_log_prob)
         return out
-
-
-    @torch.no_grad()
-    def _sample(self, image_size, batch_size = 16):
-        return self.p_sample_loop((batch_size, 3, image_size, image_size))
-
 
     def log_sample_categorical(self, logits):
         uniform = torch.rand_like(logits)
@@ -255,10 +278,11 @@ class MultinomialDiffusion(pl.LightningModule):
         kl_prior = self.multinomial_kl(log_qxT_prob, log_half_prob)
         return sum_except_batch(kl_prior)
 
-    def compute_Lt(self, log_x_start, log_x_t, t, detach_mean=False):
-        log_true_prob = self.q_posterior(log_x_start=log_x_start, log_x_t=log_x_t, t=t)
+    def compute_Lt(self, log_x_start, log_x_t, t, context, detach_mean=False):
+        log_true_prob = self.q_posterior(
+            log_x_start=log_x_start, log_x_t=log_x_t, t=t)
 
-        log_model_prob = self.p_pred(log_x=log_x_t, t=t)
+        log_model_prob = self.p_pred(log_x=log_x_t, t=t, context=context)
 
         if detach_mean:
             log_model_prob = log_model_prob.detach()
@@ -273,7 +297,19 @@ class MultinomialDiffusion(pl.LightningModule):
         loss = mask * decoder_nll + (1. - mask) * kl
 
         return loss
+    
+    def training_step(self, batch, batch_idx):
+        loss, loss_dict = self._train_loss(batch)
+        self.log_dict(loss_dict, prog_bar=True, logger=True, on_step=True, on_epoch=True)
 
+        self.log("global_step", self.global_step, prog_bar=True, logger=True, on_step=True, on_epoch=False)
+
+        if self.use_scheduler:
+            lr = self.optimizers().param_groups[0]['lr']
+            self.log('lr_abs', lr, prog_bar=True, logger=True, on_step=True, on_epoch=False)
+
+        return loss
+    
     def sample_time(self, b, device, method='uniform'):
         if method == 'importance':
             if not (self.Lt_count > 10).all():
@@ -298,17 +334,18 @@ class MultinomialDiffusion(pl.LightningModule):
         else:
             raise ValueError
 
-    def _train_loss(self, x):
+    def log_prob(self, batch):
+        x, context = batch[self.input_key], self.get_input(batch, self.context_key)
         b, device = x.size(0), x.device
-
-        if self.loss_type == 'vb_stochastic':
+        
+        if self.training:
             x_start = x
-
             t, pt = self.sample_time(b, device, 'importance')
 
             log_x_start = index_to_log_onehot(x_start, self.num_classes)
 
-            kl = self.compute_Lt(log_x_start, self.q_sample(log_x_start=log_x_start, t=t), t)
+            kl = self.compute_Lt(
+                log_x_start, self.q_sample(log_x_start=log_x_start, t=t), t, context)
 
             Lt2 = kl.pow(2)
             Lt2_prev = self.Lt_history.gather(dim=0, index=t)
@@ -323,24 +360,13 @@ class MultinomialDiffusion(pl.LightningModule):
 
             return -vb_loss
 
-        elif self.loss_type == 'vb_all':
-            # Expensive, dont do it ;).
-            return -self.nll(x)
-        else:
-            raise ValueError()
-
-    def log_prob(self, x):
-        b, device = x.size(0), x.device
-        if self.training:
-            return self._train_loss(x)
-
         else:
             log_x_start = index_to_log_onehot(x, self.num_classes)
 
             t, pt = self.sample_time(b, device, 'importance')
 
             kl = self.compute_Lt(
-                log_x_start, self.q_sample(log_x_start=log_x_start, t=t), t)
+                log_x_start, self.q_sample(log_x_start=log_x_start, t=t), t, context)
 
             kl_prior = self.kl_prior(log_x_start)
 
@@ -349,6 +375,89 @@ class MultinomialDiffusion(pl.LightningModule):
 
             return -loss
 
+    def _train_loss(self, batch):
+        tdm_loss = - self.log_prob(batch).sum() / (math.log(2) * batch[self.input_key].shape[0] * self.length)
+        return tdm_loss, {'tdm loss': tdm_loss}
+
+    def get_input(self, batch, k):
+        x = batch[k]
+        if len(x.shape) == 3:
+            x = x[..., None]
+        x = rearrange(x, 'b h w c -> b c h w')
+        x = x.to(memory_format=torch.contiguous_format).float()
+        return x
+    
+    def training_step(self, batch, batch_idx):
+        loss, loss_dict = self._train_loss(batch)
+        self.log_dict(loss_dict, prog_bar=True, logger=True, on_step=True, on_epoch=True)
+
+        self.log("global_step", self.global_step, prog_bar=True, logger=True, on_step=True, on_epoch=False)
+
+        if self.use_scheduler:
+            lr = self.optimizers().param_groups[0]['lr']
+            self.log('lr_abs', lr, prog_bar=True, logger=True, on_step=True, on_epoch=False)
+
+        return loss
+    
+    @torch.no_grad()
+    def validation_step(self, batch, batch_idx):
+        _, loss_dict_no_ema = self._train_loss(batch)
+        self.log_dict(loss_dict_no_ema, prog_bar=False, logger=True, on_step=False, on_epoch=True)
+
+
+    @torch.no_grad()
+    def p_sample(self, log_x, t, context):
+        model_log_prob = self.p_pred(log_x=log_x, t=t, context=context)
+        out = self.log_sample_categorical(model_log_prob)
+        return out
+
+    def sample(self, num_samples, batch):
+        context = batch[self.context_key]
+        b = num_samples
+        device = self.log_alpha.device
+        uniform_logits = torch.zeros((b, self.num_classes, self.length), device=device)
+        log_z = self.log_sample_categorical(uniform_logits)
+        for i in reversed(range(0, self.num_timesteps)):
+            if i%100 == 0: 
+                print(f'Sample timestep {i:4d}', end='\r')
+            t = torch.full((b,), i, device=device, dtype=torch.long)
+            log_z = self.p_sample(log_z, t, context=context)
+        print()
+        return log_onehot_to_index(log_z)
+
+    def sample_chain(self, num_samples, batch):
+        context = batch[self.context_key]
+        b = num_samples
+        device = self.log_alpha.device
+        uniform_logits = torch.zeros((b, self.num_classes, self.length), device=device)
+        zs = torch.zeros((self.num_timesteps, b, self.length)).long()
+        log_z = self.log_sample_categorical(uniform_logits)
+        for i in reversed(range(0, self.num_timesteps)):
+            print(f'Chain timestep {i:4d}', end='\r')
+            t = torch.full((b,), i, device=device, dtype=torch.long)
+            log_z = self.p_sample(log_z, t, context=context)
+            zs[i] = log_onehot_to_index(log_z)
+        print()
+        return zs
+    
+    def configure_optimizers(self):
+        lr = self.learning_rate
+        params = list(self.denoise_fn.parameters())
+        params = params + list(self.cond_stage_model.parameters())
+        opt = torch.optim.AdamW(params, lr=lr)
+        if self.use_scheduler:
+            assert 'target' in self.scheduler_config
+            scheduler = instantiate_from_config(self.scheduler_config)
+            print("Setting up LambdaLR scheduler...")
+            scheduler = [
+                {
+                    'scheduler': LambdaLR(opt, lr_lambda=scheduler.schedule),
+                    'interval': 'step',
+                    'frequency': 1
+                }]
+            return [opt], scheduler
+        return opt
+    
 
 class DiffusionWrapper(pl.LightningModule):
     def __init__(self, diff_model_config):

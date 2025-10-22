@@ -1,0 +1,76 @@
+model:
+  base_learning_rate: 1e-05
+  target: model.IDM.models.autoencoder.AutoencoderKL
+  params:
+    monitor: val/rec_loss
+    embed_dim: 3
+    image_key: hq_image
+    ckpt_path: train/ckpt/IDM/pretrain_vae_ckpt/kl-f4.ckpt
+    lossconfig:
+      target: model.modules.losses.LPIPSWithDiscriminator
+      params:
+        disc_start: 50001
+        kl_weight: 1.0e-06
+        disc_weight: 0.5
+
+    ddconfig:
+      double_z: true
+      z_channels: 3
+      resolution: 512
+      in_channels: 3
+      out_ch: 3
+      ch: 128
+      ch_mult:
+      - 1
+      - 2
+      - 4
+      num_res_blocks: 2
+      attn_resolutions: []
+      dropout: 0.0
+
+data:
+  target: main.DataModuleFromConfig
+  params:
+    batch_size: 1
+    num_workers: 192
+    wrap: false
+    train:
+      target: train.dataset.IDM_training_dataset.IDM_Training_Dataset
+      params:
+        ## just for debug, change to train folder for training
+        FudanVI_lmdb_folder: train/data/valid_dataset/fudanvi_image_lmdb/images/scene_val
+        ## just for debug, change to train folder for training   
+        hq_image_list_txt: train/data/valid_dataset/fudanvi_image_lmdb/selected_hq_images_index.txt
+        max_text_length: 24
+        imgW: 512
+        imgH: 128
+        resize_flag: true
+        degrade_flag: true
+        max_len: -1
+        lq_image_probability: [0.4, 0.3, 0.3]
+    validation:
+      target: train.dataset.IDM_training_dataset.IDM_Training_Dataset
+      params:  
+        FudanVI_lmdb_folder: train/data/valid_dataset/fudanvi_image_lmdb/images/scene_val
+        hq_image_list_txt: train/data/valid_dataset/fudanvi_image_lmdb/selected_hq_images_index.txt
+        max_text_length: 24
+        imgW: 512
+        imgH: 128
+        resize_flag: true
+        degrade_flag: true
+        max_len: 5000
+        lq_image_probability: [0.4, 0.3, 0.3]  # real-esrgan, bsrgan, hq
+        
+lightning:
+  callbacks:
+    image_logger:
+      target: main.ImageLogger
+      params:
+        batch_frequency: 750
+        max_images: 12
+        increase_log_steps: false
+
+  trainer:
+    benchmark: True
+    max_epochs: 3000
+    resume_from_checkpoint: train/ckpt/IDM/pretrain_vae_ckpt/kl-f4.ckpt

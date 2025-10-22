@@ -131,8 +131,6 @@ class SpatialRescaler(nn.Module):
         return self(x)
 
 
-
-
 class FeatureMapEncoder(nn.Module):
     def __init__(self, input_dim, n_embed):
         super().__init__()
