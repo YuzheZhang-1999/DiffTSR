@@ -12,7 +12,6 @@ model:
         disc_start: 50001
         kl_weight: 1.0e-06
         disc_weight: 0.5
-
     ddconfig:
       double_z: true
       z_channels: 3
@@ -35,11 +34,13 @@ data:
     num_workers: 192
     wrap: false
     train:
-      target: train.dataset.IDM_training_dataset.IDM_Training_Dataset
+      target: train.dataset.DiffTSR_training_dataset.DiffTSR_Training_Dataset
       params:
         ## just for debug, change to train folder for training
         FudanVI_lmdb_folder: train/data/valid_dataset/fudanvi_image_lmdb/images/scene_val
-        ## just for debug, change to train folder for training   
+        ## Important!!! Please note this hq_image_list_txt file!
+        ## This is an index list of high-quality data selected from the lmbd original data. 
+        ## It needs to be replaced according to your filtering strategy and filtered result.  
         hq_image_list_txt: train/data/valid_dataset/fudanvi_image_lmdb/selected_hq_images_index.txt
         max_text_length: 24
         imgW: 512
@@ -49,7 +50,7 @@ data:
         max_len: -1
         lq_image_probability: [0.4, 0.3, 0.3]
     validation:
-      target: train.dataset.IDM_training_dataset.IDM_Training_Dataset
+      target: train.dataset.DiffTSR_training_dataset.DiffTSR_Training_Dataset
       params:  
         FudanVI_lmdb_folder: train/data/valid_dataset/fudanvi_image_lmdb/images/scene_val
         hq_image_list_txt: train/data/valid_dataset/fudanvi_image_lmdb/selected_hq_images_index.txt

@@ -32,7 +32,7 @@ def read_txt_file_to_int_list(file_path):
 
 
 ## Only for training dataset generation
-class IDM_Training_Dataset(Dataset):
+class DiffTSR_Training_Dataset(Dataset):
     def __init__(self, FudanVI_lmdb_folder, 
                  hq_image_list_txt, 
                  max_text_length, 

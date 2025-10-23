@@ -6,6 +6,7 @@
 *.pt
 *.cfg
 *.mdb
+*.pyc
 .DS_Store
 */.DS_Store
 */*/.DS_Store
