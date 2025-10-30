@@ -63,17 +63,12 @@ Please Read Before Trying.
    
    其中：
    
-   $$
-   L_{IDM} = L_2 + \lambda*L_{OCR}, \lambda=0.02
-   $$
+      ![L_IDM](https://latex.codecogs.com/svg.image?L_{IDM}=L_2+%5Clambda%20L_{OCR},%20%5Clambda=0.02)
 
-   $$
-   L_{TDM} = KL(\mathcal{C(\pi_{post}(\mathbf{c_t}, \mathbf{c_0}))} || \mathcal{C(\pi_{post}(\mathbf{c_t}, \mathbf{c_{pred, t}}))})
-   $$
+      ![L_TDM](https://latex.codecogs.com/svg.image?L_{TDM}=KL%28%5Cmathcal%7BC%7D%28%5Cpi_{post}%28%5Cmathbf%7Bc_t%7D,%20%5Cmathbf%7Bc_0%7D%29%29%20%7C%7C%20%5Cmathcal%7BC%7D%28%5Cpi_{post}%28%5Cmathbf%7Bc_t%7D,%20%5Cmathbf%7Bc_%7Bpred,t%7D%7D%29%29%29)
 
-   $$
-   L_{MoM} = L_{IDM} + \lambda*L_{TDM}, \lambda=1
-   $$
+      ![L_MoM](https://latex.codecogs.com/svg.image?L_{MoM}=L_{IDM}+%5Clambda%20L_{TDM},%20%5Clambda=1)
+
 
    具体符号定义和理论推导详见 [附加材料](https://openaccess.thecvf.com/content/CVPR2024/supplemental/Zhang_Diffusion-based_Blind_Text_CVPR_2024_supplemental.pdf) Section 1 及 Algorithm 1 DiffTSR Training。
 
@@ -127,18 +122,12 @@ Please Read Before Trying.
    - **Training the entire DiffTSR**: IDM and TDM are frozen, and only MoM is trained with loss `L_MoM = L_IDM + L_TDM * weight`.
    
    Where:
-   
-   $$
-   L_{IDM} = L_2 + \lambda*L_{OCR}, \lambda=0.02
-   $$
+      
+      ![L_IDM](https://latex.codecogs.com/svg.image?L_{IDM}=L_2+%5Clambda%20L_{OCR},%20%5Clambda=0.02)
 
-   $$
-   L_{TDM} = KL(\mathcal{C(\pi_{post}(\mathbf{c_t}, \mathbf{c_0}))} || \mathcal{C(\pi_{post}(\mathbf{c_t}, \mathbf{c_{pred, t}}))})
-   $$
+      ![L_TDM](https://latex.codecogs.com/svg.image?L_{TDM}=KL%28%5Cmathcal%7BC%7D%28%5Cpi_{post}%28%5Cmathbf%7Bc_t%7D,%20%5Cmathbf%7Bc_0%7D%29%29%20%7C%7C%20%5Cmathcal%7BC%7D%28%5Cpi_{post}%28%5Cmathbf%7Bc_t%7D,%20%5Cmathbf%7Bc_%7Bpred,t%7D%7D%29%29%29)
 
-   $$
-   L_{MoM} = L_{IDM} + \lambda*L_{TDM}, \lambda=1
-   $$
+      ![L_MoM](https://latex.codecogs.com/svg.image?L_{MoM}=L_{IDM}+%5Clambda%20L_{TDM},%20%5Clambda=1)
 
    For detailed symbol definitions and theoretical derivations, see [Supplementary Material](https://openaccess.thecvf.com/content/CVPR2024/supplemental/Zhang_Diffusion-based_Blind_Text_CVPR_2024_supplemental.pdf) Section 1 and Algorithm 1 DiffTSR Training.
 
@@ -194,7 +183,7 @@ python inference_DiffTSR.py
 
 ### Training
 ```
-# cd DiffTSR/train/README.md
+# cd ./train
 # check the README.md file for training details
 
 # Please note that you need to carefully review the training sh file and the configuration yaml. 
