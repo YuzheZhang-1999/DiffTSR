@@ -12,6 +12,17 @@ Diffusion-based Blind Text Image Super-Resolution (CVPR2024)
 
 <sup>1</sup>Beijing Institute of Technology, <sup>2</sup>SenseTime Research, <sup>3</sup>The University of Hong Kong
 
+
+## 📢 News
+- 🚀Training Code has been released, enjoy.
+- 🌟Added some discussions about this work [Q&A](#-qa) and limitations of input image and dataset production [Data_Produce](#-input-data-and-dataset-production-guideline).
+- **2024.12** 🚀Some bugs and stability issues have been fixed. Please use the latest model for inference.
+- **2024.05** 🚀Inference code has been released, enjoy.
+- **2024.04** 🚀Official repository of DiffTSR.
+- **2024.03** 🌟The implementation code will be released shortly.
+- **2024.03** ❤️Accepted by CVPR2024.
+
+
 ## 💬 Q&A
 Please Read Before Trying.
 
@@ -137,12 +148,17 @@ Please Read Before Trying.
 </details>
 
 
-## 📢 News
-- 🚀Training Code has been released, enjoy.
-- **2024.05** 🚀Inference code has been released, enjoy.
-- **2024.04** 🚀Official repository of DiffTSR.
-- **2024.03** 🌟The implementation code will be released shortly.
-- **2024.03** ❤️Accepted by CVPR2024.
+## 🌟 Input data and dataset production guideline
+When using this model, the input data should meet the following requirements:
+
+1. The number of characters must not exceed 24.
+2. The text must be arranged horizontally.
+3. Single-line text only.
+4. The aspect ratio must satisfy $1 \leq \mathrm{ratio}(W/H) \leq 8$.
+5. In addition, during dataset cleaning, besides the above requirements, it is also necessary to ensure that the LR and HR images are not misaligned.
+
+Future improvements aim to achieve more flexible, faster, and more general text image enhancement.
+
 
 ## 🔥 TODO
 - [x] Attach the detailed implementation and supplementary material.
